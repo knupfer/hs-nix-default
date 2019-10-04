@@ -53,8 +53,8 @@ if release
 then
 
    { archive = historic.${pkgs}.haskell.lib.sdistTarball (eval ghc pkgs);
-   } // (historic.${pkgs}.lib.mapAttrs (x: y: addGhcVersion (eval x y) x) (listToAttrs (map versionTuple versions)))
+   } // historic.${pkgs}.lib.mapAttrs (x: y: addGhcVersion (eval x y) x) (listToAttrs (map versionTuple versions))
 
 else
 
-  addGhcVersion (historic.${pkgs}.haskell.lib.shellAware (eval ghc pkgs)) ghc
+  historic.${pkgs}.haskell.lib.shellAware (addGhcVersion (eval ghc pkgs) ghc)
