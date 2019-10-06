@@ -51,3 +51,5 @@ use the first ghc version to build an sdist tarball for hackage.
 
 Besides that, the source will be filtered to avoid recompilation
 because of nix or vc artifacts.
+
+The oldest supported GHC version is 7.0.4.
