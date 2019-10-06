@@ -31,15 +31,14 @@ let
       else latestPkgs (tail xs) v;
   listOfNixpkgs = sort (a: b: lessThan b a) (attrNames historic);
   versionToGhc = x: "ghc" + replaceStrings ["."] [""] x;
-  eval = g: p: with historic.${p};
-    ( if haskell.lib ? doBenchmark then haskell.lib.doBenchmark else x: x)
-      ( haskell.packages.${g}.callCabal2nix project
-        ( lib.cleanSource directory
-        ) {}
-      )
-  ;
-  addGhcVersion = x: g: historic.${pkgs}.haskell.lib.overrideCabal x (old:
-    { version = old.version + "-" + g;
+  when = p: f: if p then f else (x: x);
+  eval = modVersion: g: p: with historic.${p};
+    historic.${pkgs}.haskell.lib.buildStrictly (when modVersion (addGhcVersion g p)
+      ( when (haskell.lib ? doBenchmark) haskell.lib.doBenchmark
+        ( haskell.packages.${g}.callCabal2nix project (lib.cleanSource directory) {})));
+  addGhcVersion = g: p: x: historic.${pkgs}.haskell.lib.overrideCabal x (old:
+    { version = old.version + "-" + p + "-" + g;
+      preInstall = "mkdir -p dist/hpc";
       postInstall = "cp -r dist $out/dist";
       doCoverage = true;
     });
@@ -48,13 +47,15 @@ in
 
 { release ? false }:
 
+with historic.${pkgs};
+
 if release
 
 then
 
-   { archive = historic.${pkgs}.haskell.lib.sdistTarball (eval ghc pkgs);
-   } // historic.${pkgs}.lib.mapAttrs (x: y: addGhcVersion (eval x y) x) (listToAttrs (map versionTuple versions))
+  { archive = haskell.lib.sdistTarball (eval false ghc pkgs);
+  } // lib.mapAttrs (eval true) (listToAttrs (map versionTuple versions))
 
 else
 
-  historic.${pkgs}.haskell.lib.shellAware (addGhcVersion (eval ghc pkgs) ghc)
+  haskell.lib.shellAware (eval true ghc pkgs)
