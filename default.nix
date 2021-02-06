@@ -7,8 +7,8 @@ let
   historic = import ((import <nixpkgs> {}).fetchFromGitHub {
     owner  = "knupfer";
     repo   = "historic-nixpkgs";
-    rev    = "bd671e09494b9f871c84017b75a560ec98d6aa0f";
-    sha256 = "15i2iyr9hj2ialhbafryk099y164lrdlnsrsky89j696v5rsgr24";});
+    rev    = "37f39a8adbdb0f3b977f161ff90a2c0c5ca6bfa8";
+    sha256 = "1cx9fv2xqaxrakwrai5982w4xy54mplgbb9qhbakn7lzrxfrzdqz";});
 
   pkgs = (versionTuple (head versions)).value;
   ghc = (versionTuple (head versions)).name;
